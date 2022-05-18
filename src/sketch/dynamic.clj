@@ -83,7 +83,7 @@
 
 (defn paint-hexagons
   [hue]
-  (dotimes [_ 3]
+  (dotimes [_ 99]
     (q/with-translation [(q/random 0 (q/width)) (q/random (q/height))]
       (paint-hexagon hue))))
 
