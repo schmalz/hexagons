@@ -84,11 +84,13 @@
   )
 
 (defn random-inside-margin
-  [dim margin]
+  "A random point within MARGIN inside DIEMSION."
+  [dimension margin]
   (q/random margin
-            (- dim margin)))
+            (- dimension margin)))
 
 (defn hexagons
+  "An infinite, lazy sequence of hexagon images, with centres at X, Y."
   [x y]
   (lazy-seq
    (let [r     (* 33 (q/random-gaussian))
@@ -121,15 +123,20 @@
         y2  (random-inside-margin (q/height) 10)]
     (dotimes [i 99]
       (let [t (/ i 98)
-            x (q/bezier-point x1 cx1 cx2 x2 t)
-            y (q/bezier-point y1 cy1 cy2 y2 t)]
+            x (+ (* 3
+                    (q/random-gaussian))
+                 (q/bezier-point x1 cx1 cx2 x2 t))
+            y (+ (* 3
+                    (q/random-gaussian))
+                 (q/bezier-point y1 cy1 cy2 y2 t))]
         (q/ellipse x y 3 3)))))
 
 (defn paint-dots
-  [hue]
+  "Paint N strings of dots."
+  [n hue]
   (q/stroke hue 15 100)
   (q/fill hue 15 100)
-  (dotimes [_ 3]
+  (dotimes [_ n]
     (dots)))
 
 (defn save-frame-to-disk
@@ -148,6 +155,6 @@
   (let [colour :purples]
     (paint-background (get-in colours [colour :bg-hue-low])
                     (get-in colours [colour :bg-hue-high]))
-    (paint-dots (get-in colours [colour :shape-fill]))
+    (paint-dots 3 (get-in colours [colour :shape-fill]))
     (paint-hexagons (get-in colours [colour :shape-fill])))
   (save-frame-to-disk))
