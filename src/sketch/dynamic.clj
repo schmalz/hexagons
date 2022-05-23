@@ -54,6 +54,7 @@
   (q/color-mode :hsb 360 100 100 1.0))
 
 (defn paint-background
+  "Paint the background; a gradient from HUE-LOW to HUE-HIGH."
   [hue-low hue-high]
   (q/no-stroke)
   (doseq [y (range 0 1000 3)]
@@ -63,29 +64,78 @@
     (q/rect 0 y 1600 3)))
 
 (defn paint-hexagon
-  [hue]
-  (q/stroke hue 15 100)
-  (q/no-fill)
-  (q/begin-shape)
-  (q/vertex (* 10 cos-0)
-            (* 10 sin-0))
-  (q/vertex (* 10 cos-60)
-            (* 10 sin-60))
-  (q/vertex (* 10 cos-120)
-            (* 10 sin-120))
-  (q/vertex (* 10 cos-180)
-            (* 10 sin-180))
-  (q/vertex (* 10 cos-240)
-            (* 10 sin-240))
-  (q/vertex (* 10 cos-300)
-            (* 10 sin-300))
-  (q/end-shape :close))
+  "Paint a hexagon centered on X, Y."
+  [x y]
+  (q/with-translation [x y]
+    (q/begin-shape)
+    (q/vertex (* 10 cos-0)
+              (* 10 sin-0))
+    (q/vertex (* 10 cos-60)
+              (* 10 sin-60))
+    (q/vertex (* 10 cos-120)
+              (* 10 sin-120))
+    (q/vertex (* 10 cos-180)
+              (* 10 sin-180))
+    (q/vertex (* 10 cos-240)
+              (* 10 sin-240))
+    (q/vertex (* 10 cos-300)
+              (* 10 sin-300))
+    (q/end-shape :close))
+  )
+
+(defn hexagons
+  [x y]
+  (lazy-seq
+   (let [r     (* 33 (q/random-gaussian))
+         theta (q/random (* 2 q/PI))
+         new-x (+ x (* r
+                       (q/cos theta)))
+         new-y (+ y (* r
+                       (q/sin theta)))]
+     (paint-hexagon new-x new-y)
+     (cons [new-x new-y]
+           (hexagons new-x new-y)))))
 
 (defn paint-hexagons
   [hue]
-  (dotimes [_ 99]
-    (q/with-translation [(q/random 0 (q/width)) (q/random (q/height))]
-      (paint-hexagon hue))))
+  (q/stroke hue 15 100)
+  (q/no-fill)
+  (dotimes [_ 2]
+    (dorun 999 (hexagons (q/random 10 (- (q/width)
+                                         10))
+                         (q/random 10 (- (q/height)
+                                         10))))))
+
+(defn dots
+  []
+  (let [x1  (q/random 10 (- (q/width)
+                            10))
+        y1  (q/random 10 (- (q/height)
+                            10))
+        cx1 (q/random 10 (- (q/width)
+                            10))
+        cy1 (q/random 10 (- (q/height)
+                            10))
+        cx2 (q/random 10 (- (q/width)
+                            10))
+        cy2 (q/random 10 (- (q/height)
+                            10))
+        x2  (q/random 10 (- (q/width)
+                            10))
+        y2  (q/random 10 (- (q/height)
+                            10))]
+    (dotimes [i 99]
+      (let [t (/ i 98)
+            x (q/bezier-point x1 cx1 cx2 x2 t)
+            y (q/bezier-point y1 cy1 cy2 y2 t)]
+        (q/ellipse x y 3 3)))))
+
+(defn paint-dots
+  [hue]
+  (q/stroke hue 15 100)
+  (q/fill hue 15 100)
+  (dotimes [_ 3]
+    (dots)))
 
 (defn save-frame-to-disk
   ([]
@@ -103,5 +153,6 @@
   (let [colour :purples]
     (paint-background (get-in colours [colour :bg-hue-low])
                     (get-in colours [colour :bg-hue-high]))
+    (paint-dots (get-in colours [colour :shape-fill]))
     (paint-hexagons (get-in colours [colour :shape-fill])))
   (save-frame-to-disk))

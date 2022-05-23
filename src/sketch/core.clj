@@ -9,7 +9,7 @@
   :title "sketch"
   :setup dynamic/initialise
   :draw dynamic/draw
-  :size [1600 1000])
+  :size [1458 901])
 
 (defn refresh
   []
