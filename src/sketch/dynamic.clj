@@ -83,6 +83,11 @@
     (q/end-shape :close))
   )
 
+(defn random-inside-margin
+  [dim margin]
+  (q/random margin
+            (- dim margin)))
+
 (defn hexagons
   [x y]
   (lazy-seq
@@ -101,29 +106,19 @@
   (q/stroke hue 15 100)
   (q/no-fill)
   (dotimes [_ 2]
-    (dorun 999 (hexagons (q/random 10 (- (q/width)
-                                         10))
-                         (q/random 10 (- (q/height)
-                                         10))))))
+    (dorun 999 (hexagons (random-inside-margin (q/width) 10)
+                         (random-inside-margin (q/height) 10)))))
 
 (defn dots
   []
-  (let [x1  (q/random 10 (- (q/width)
-                            10))
-        y1  (q/random 10 (- (q/height)
-                            10))
-        cx1 (q/random 10 (- (q/width)
-                            10))
-        cy1 (q/random 10 (- (q/height)
-                            10))
-        cx2 (q/random 10 (- (q/width)
-                            10))
-        cy2 (q/random 10 (- (q/height)
-                            10))
-        x2  (q/random 10 (- (q/width)
-                            10))
-        y2  (q/random 10 (- (q/height)
-                            10))]
+  (let [x1  (random-inside-margin (q/width) 10)
+        y1  (random-inside-margin (q/height) 10)
+        cx1 (random-inside-margin (q/width) 10)
+        cy1 (random-inside-margin (q/height) 10)
+        cx2 (random-inside-margin (q/width) 10)
+        cy2 (random-inside-margin (q/height) 10)
+        x2  (random-inside-margin (q/width) 10)
+        y2  (random-inside-margin (q/height) 10)]
     (dotimes [i 99]
       (let [t (/ i 98)
             x (q/bezier-point x1 cx1 cx2 x2 t)
