@@ -139,11 +139,13 @@
 
 (defn paint-dots
   "Paint M braids of P strings of N blurred dots using HUE for the stroke and fill."
-  [m p n hue]
-  (q/stroke hue 15 100)
-  (q/fill hue 15 100)
-  (dotimes [_ m]
-    (braids p n))
+  [m p n]
+  ; try hue between 0 - 21, saturation 80, brightness 100
+  (let [hue (q/random 0 21)]
+    (q/stroke hue 65 80)
+    (q/fill hue 65 80)
+    (dotimes [_ m]
+      (braids p n)))
   (q/display-filter :blur))
 
 (defn draw
@@ -151,6 +153,6 @@
   (q/no-loop)
   (let [colour :purples]
     (paint-background (get-in colours [colour :bg-hue-low]) (get-in colours [colour :bg-hue-high]))
-    (paint-dots 3 5 99 (get-in colours [colour :shape-fill]))
+    (paint-dots 3 5 99 #_(get-in colours [colour :shape-fill]))
     (paint-hexagons 2 999 (get-in colours [colour :shape-fill])))
   (save-frame-to-disk))
