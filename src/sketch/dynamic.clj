@@ -53,6 +53,16 @@
   (q/smooth)
   (q/color-mode :hsb 360 100 100 1.0))
 
+(defn save-frame-to-disk
+  ([]
+   (q/save-frame (pp/cl-format nil
+                               "frames/~d-~2,'0d-~2,'0d-~2,'0d-~2,'0d-~2,'0d-####.jpeg"
+                               (q/year) (q/month) (q/day)
+                               (q/hour) (q/minute) (q/seconds))))
+  ([state _]
+   (save-frame-to-disk)
+   state))
+
 (defn paint-background
   "Paint the background; a gradient from HUE-LOW to HUE-HIGH."
   [hue-low hue-high]
@@ -102,8 +112,17 @@
                                      (random-inside-margin (q/height) 10)))))))
 
 (defn dots
-  "Paint a string of N dots."
-  [n]
+  "Paint a string of N dots along a bezier curve defined by X1, Y1, CX1, CY1, CX2, CY2, X2, Y2"
+  [n x1 y1 cx1 cy1 cx2 cy2 x2 y2]
+  (dotimes [i n]
+    (let [t (/ i n)
+          x (+ (* 3 (q/random-gaussian)) (q/bezier-point x1 cx1 cx2 x2 t))
+          y (+ (* 3 (q/random-gaussian)) (q/bezier-point y1 cy1 cy2 y2 t))]
+      (q/ellipse x y 3 3))))
+
+(defn braids
+  "Paint P strings of N dots."
+  [p n]
   (let [x1  (random-inside-margin (q/width) 10)
         y1  (random-inside-margin (q/height) 10)
         cx1 (random-inside-margin (q/width) 10)
@@ -112,36 +131,26 @@
         cy2 (random-inside-margin (q/height) 10)
         x2  (random-inside-margin (q/width) 10)
         y2  (random-inside-margin (q/height) 10)]
-    (dotimes [i n]
-      (let [t (/ i n)
-            x (+ (* 3 (q/random-gaussian)) (q/bezier-point x1 cx1 cx2 x2 t))
-            y (+ (* 3 (q/random-gaussian)) (q/bezier-point y1 cy1 cy2 y2 t))]
-        (q/ellipse x y 3 3)))))
+    (dotimes [_ p]
+      (dots n x1 y1
+            (+ cx1 (* 5 (q/random-gaussian))) (+ cy1 (* 5 (q/random-gaussian)))
+            (+ cx2 (* 5 (q/random-gaussian))) (+ cy2 (* 5 (q/random-gaussian)))
+            x2 y2))))
 
 (defn paint-dots
-  "Paint M strings of N blurred dots using HUE for the stroke and fill."
-  [m n hue]
+  "Paint M braids of P strings of N blurred dots using HUE for the stroke and fill."
+  [m p n hue]
   (q/stroke hue 15 100)
   (q/fill hue 15 100)
   (dotimes [_ m]
-    (dots n))
+    (braids p n))
   (q/display-filter :blur))
-
-(defn save-frame-to-disk
-  ([]
-   (q/save-frame (pp/cl-format nil
-                               "frames/~d-~2,'0d-~2,'0d-~2,'0d-~2,'0d-~2,'0d-####.jpeg"
-                               (q/year) (q/month) (q/day)
-                               (q/hour) (q/minute) (q/seconds))))
-  ([state _]
-   (save-frame-to-disk)
-   state))
 
 (defn draw
   []
   (q/no-loop)
   (let [colour :purples]
     (paint-background (get-in colours [colour :bg-hue-low]) (get-in colours [colour :bg-hue-high]))
-    (paint-dots 3 99 (get-in colours [colour :shape-fill]))
+    (paint-dots 3 5 99 (get-in colours [colour :shape-fill]))
     (paint-hexagons 2 999 (get-in colours [colour :shape-fill])))
   (save-frame-to-disk))
