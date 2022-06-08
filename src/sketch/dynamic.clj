@@ -94,7 +94,7 @@
   "An infinte, random sequence of x, y pairs, beginning at X, Y."
   [x y]
   (lazy-seq
-   (let [r     (* 33 (q/random-gaussian))
+   (let [r     (* 11 (q/random-gaussian))
          theta (q/random (* 2 q/PI))
          new-x (+ x (* r (q/cos theta)))
          new-y (+ y (* r (q/sin theta)))]
@@ -130,7 +130,10 @@
         cx2 (random-inside-margin (q/width) 10)
         cy2 (random-inside-margin (q/height) 10)
         x2  (random-inside-margin (q/width) 10)
-        y2  (random-inside-margin (q/height) 10)]
+        y2  (random-inside-margin (q/height) 10)
+        hue (q/random 0 21)]
+    (q/stroke hue 65 80)
+    (q/fill hue 65 80)
     (dotimes [_ p]
       (dots n x1 y1
             (+ cx1 (* 5 (q/random-gaussian))) (+ cy1 (* 5 (q/random-gaussian)))
@@ -140,12 +143,8 @@
 (defn paint-dots
   "Paint M braids of P strings of N blurred dots using HUE for the stroke and fill."
   [m p n]
-  ; try hue between 0 - 21, saturation 80, brightness 100
-  (let [hue (q/random 0 21)]
-    (q/stroke hue 65 80)
-    (q/fill hue 65 80)
-    (dotimes [_ m]
-      (braids p n)))
+  (dotimes [_ m]
+    (braids p n))
   (q/display-filter :blur))
 
 (defn draw
