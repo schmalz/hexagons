@@ -147,11 +147,63 @@
     (braids p n))
   (q/display-filter :blur))
 
+(defn point-on-circle
+  "A random point on a circle of radius R and centre (0, 0)."
+  [r]
+  (let [theta (q/random q/TWO-PI)]
+    [(* r
+        (q/cos theta))
+     (* r
+        (q/sin theta))]))
+
+(defn points-on-circle
+  "Four points on a circle of radius R."
+  [r]
+  (repeatedly 4 (partial point-on-circle r)))
+
+(defn points-between
+  "Divide the line between two points and return the two end points and the points at the divisions."
+  [n [x1 y1] [x2 y2]]
+  (let [dx (/ (- x2 x1)
+              n)
+        dy (/ (- y2 y1)
+              n)]
+    (partition 2
+               (interleave (flatten (list (range x1 x2 dx)
+                                          x2))
+                           (flatten (list (range y1 y2 dy)
+                                          y2))))))
+
+(defn draw-grid-lines
+  "Draw a grid by drawing lines between four points and the divisions on the lines between them."
+  [n p1 p2 p3 p4]
+  (dorun (map q/line
+              (points-between n p1 p2)
+              (points-between n p3 p4))))
+
+(defn- draw-grid
+  "Draw a grid within a circle of radius R."
+  [r]
+  (let [[top-left top-right bottom-right bottom-left] (points-on-circle r)]
+    (draw-grid-lines 5 top-left top-right bottom-left bottom-right)
+    (draw-grid-lines 5 top-left bottom-left top-right bottom-right)))
+
+(defn paint-grids
+  "Paint N grids."
+  [n]
+  (q/stroke 0 0 0)
+  (dotimes [_ n]
+    (let [x (random-inside-margin (q/width) 10)
+          y (random-inside-margin (q/height) 10)]
+      (q/with-translation [x y]
+        (draw-grid 101)))))
+
 (defn draw
   []
   (q/no-loop)
   (let [colour :purples]
     (paint-background (get-in colours [colour :bg-hue-low]) (get-in colours [colour :bg-hue-high]))
-    (paint-dots 3 5 99 #_(get-in colours [colour :shape-fill]))
-    (paint-hexagons 2 999 (get-in colours [colour :shape-fill])))
+    (paint-dots 7 5 99 #_(get-in colours [colour :shape-fill]))
+    (paint-grids 3)
+    (paint-hexagons 5 37 (get-in colours [colour :shape-fill])))
   (save-frame-to-disk))
