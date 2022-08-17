@@ -94,7 +94,7 @@
   "An infinte, random sequence of x, y pairs, beginning at X, Y."
   [x y]
   (lazy-seq
-   (let [r     (* 11 (q/random-gaussian))
+   (let [r     (* 31 (q/random-gaussian))
          theta (q/random (* 2 q/PI))
          new-x (+ x (* r (q/cos theta)))
          new-y (+ y (* r (q/sin theta)))]
